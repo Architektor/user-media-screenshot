@@ -3,8 +3,9 @@ const {desktopCapturer, screen} = require('electron');
 function getScreen(callback) {
     var _this = this;
     this.callback = callback;
+    this.screenshots = [];
 
-    this.handleStream = (stream) => {
+    this.handleStream = (stream, finalScreenshot) => {
         // console.log('stream',stream);
         // Create hidden video tag
         var video = document.createElement('video');
@@ -22,10 +23,13 @@ function getScreen(callback) {
             var ctx = canvas.getContext('2d');
             // Draw video on canvas
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            _this.screenshots.push(canvas.toDataURL('image/jpeg'));
             
             if (_this.callback) {
                 // Save screenshot to jpg - base64
-                _this.callback(canvas.toDataURL('image/jpeg'));
+              if (finalScreenshot) {
+                _this.callback(_this.screenshots);
+              }
             } else {
                 console.log('Need callback!');
             }
@@ -49,23 +53,21 @@ function getScreen(callback) {
         if (error) throw error;
         // console.log(sources);
         for (let i = 0; i < sources.length; ++i) {
-            // Filter: main screen
-            if (sources[i].name === "Entire screen") {
-                navigator.webkitGetUserMedia({
-                    audio: false,
-                    video: {
-                        mandatory: {
-                            chromeMediaSource: 'desktop',
-                            chromeMediaSourceId: sources[i].id,
-                            minWidth: 1280,
-                            maxWidth: 4000,
-                            minHeight: 720,
-                            maxHeight: 4000
-                        }
-                    }
-                }, this.handleStream, this.handleError);
-                return
-            }
+          const finalScreenshot = i === sources.length - 1;
+              navigator.webkitGetUserMedia({
+                  audio: false,
+                  video: {
+                      mandatory: {
+                          chromeMediaSource: 'desktop',
+                          chromeMediaSourceId: sources[i].id,
+                          minWidth: 1280,
+                          maxWidth: 4000,
+                          minHeight: 720,
+                          maxHeight: 4000
+                      }
+                  }
+              }, (stream) => this.handleStream(stream, finalScreenshot), this.handleError);
+              return
         }
     });
 }
