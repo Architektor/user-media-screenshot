@@ -54,20 +54,19 @@ function getScreen(callback) {
         // console.log(sources);
         for (let i = 0; i < sources.length; ++i) {
           const finalScreenshot = i === sources.length - 1;
-              navigator.webkitGetUserMedia({
-                  audio: false,
-                  video: {
-                      mandatory: {
-                          chromeMediaSource: 'desktop',
-                          chromeMediaSourceId: sources[i].id,
-                          minWidth: 1280,
-                          maxWidth: 4000,
-                          minHeight: 720,
-                          maxHeight: 4000
-                      }
-                  }
-              }, (stream) => this.handleStream(stream, finalScreenshot), this.handleError);
-              return
+            navigator.webkitGetUserMedia({
+                audio: false,
+                video: {
+                    mandatory: {
+                        chromeMediaSource: 'desktop',
+                        chromeMediaSourceId: sources[i].id,
+                        minWidth: 1280,
+                        maxWidth: 4000,
+                        minHeight: 720,
+                        maxHeight: 4000
+                    }
+                }
+             }, (stream) => this.handleStream(stream, finalScreenshot), this.handleError);
         }
     });
 }
